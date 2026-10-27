@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Beauty Place — Login</title>
+<link rel="icon" type="image/png" href="/img/icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Jost', sans-serif; background: #0a0a0a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  .box { background: #141414; border: 1px solid #2c2822; border-radius: 14px; padding: 32px 32px 36px 32px; width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .brand-wordmark { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 22px; letter-spacing: 1px; text-align: center; color: #f2ede0; margin-bottom: 2px; }
+  .brand-wordmark span { font-weight: 700; }
+  .brand-wordmark__tag { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 11px; letter-spacing: 1px; text-align: center; color: #a39b89; margin-bottom: 10px; }
+  p.sub { text-align: center; color: #a39b89; font-size: 13px; margin: 0 0 24px 0; }
+  input { width: 100%; padding: 12px 40px 12px 14px; border: 1px solid #2c2822; border-radius: 8px; font-size: 15px; box-sizing: border-box; background: #1a1a1a; color: #f2ede0; }
+  input::placeholder { color: #6b6457; }
+  input::-ms-reveal, input::-ms-clear { display: none; }
+  .pwd-wrap { position: relative; }
+  .pwd-toggle {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    width: 32px; height: 32px; margin: 0; border: none; background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: #c9a24a; padding: 0;
+    box-sizing: border-box;
+  }
+  .pwd-toggle:hover { color: #e8c97a; }
+  .pwd-toggle svg { width: 20px; height: 20px; }
+  button { width: 100%; margin-top: 16px; background: linear-gradient(135deg, #e8c97a 0%, #a8812e 100%); color: #0a0a0a; border: none; border-radius: 999px; padding: 13px; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 600; }
+  button:hover { background: #c9a24a; }
+  .error { color: #d9775a; font-size: 13px; text-align: center; margin-top: 12px; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="brand-wordmark">[ beauty <span>place</span> ]</div>
+    <div class="brand-wordmark__tag">for gym</div>
+    <p class="sub">Painel administrativo</p>
+    <form method="POST" action="/admin/login">
+      <div class="pwd-wrap">
+        <input id="senha" type="password" name="password" placeholder="Senha" autofocus required>
+        <button type="button" class="pwd-toggle" id="pwd-toggle" aria-label="Mostrar senha" title="Mostrar senha">
+          <svg id="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.6 18.6 0 0 1 4.22-5.44M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <button type="submit">Entrar</button>
+    </form>
+    <div id="erro" class="error" style="display:none;">Senha incorreta. Tente novamente.</div>
+    <div id="erro-limite" class="error" style="display:none;">Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.</div>
+  </div>
+  <script>
+    const senhaInput = document.getElementById('senha');
+    const pwdToggle = document.getElementById('pwd-toggle');
+    const eyeOpen = document.getElementById('eye-open');
+    const eyeClosed = document.getElementById('eye-closed');
+    pwdToggle.addEventListener('click', () => {
+      const showing = senhaInput.type === 'text';
+      senhaInput.type = showing ? 'password' : 'text';
+      eyeOpen.style.display = showing ? 'block' : 'none';
+      eyeClosed.style.display = showing ? 'none' : 'block';
+      pwdToggle.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Ocultar senha');
+      pwdToggle.setAttribute('title', showing ? 'Mostrar senha' : 'Ocultar senha');
+      senhaInput.focus();
+    });
+
+    const erro = new URLSearchParams(location.search).get('erro');
+    if (erro === 'limite') {
+      document.getElementById('erro-limite').style.display = 'block';
+    } else if (erro) {
+      document.getElementById('erro').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

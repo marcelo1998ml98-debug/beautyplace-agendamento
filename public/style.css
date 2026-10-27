@@ -1,0 +1,609 @@
+:root {
+  --gold-light: #e8c97a;
+  --gold: #c9a24a;
+  --gold-dark: #a8812e;
+  --bronze: #8a6a2b;
+  --bronze-dark: #6e5221;
+  --bg: #0a0a0a;
+  --bg-panel: #141414;
+  --bg-card: #1a1a1a;
+  --ink: #f2ede0;
+  --ink-soft: #a39b89;
+  --line: #2c2822;
+  --danger: #e2584a;
+  --danger-bg: #2a1512;
+  --ok: #4fae7a;
+  --ok-bg: #11241a;
+  --panel-glass: rgba(20, 20, 20, 0.6);
+  --btn-disabled-bg: #3a3528;
+  --shadow-soft: rgba(0, 0, 0, 0.4);
+}
+
+/* Tema claro — alternado pelo botão sol/lua (ver app.js), guardado no
+   navegador de cada visitante. As cores de destaque (dourado) ficam quase
+   iguais nos dois temas; só o fundo/texto/contornos mudam de dark pra
+   light. */
+:root[data-theme="light"] {
+  --bg: #f8f4ea;
+  --bg-panel: #efe8d8;
+  --bg-card: #ffffff;
+  --ink: #2b2518;
+  --ink-soft: #6c6353;
+  --line: #ded3b8;
+  --danger: #c23f30;
+  --danger-bg: #fbe8e4;
+  --ok: #2f7d52;
+  --ok-bg: #e4f3ea;
+  --panel-glass: rgba(255, 255, 255, 0.72);
+  --btn-disabled-bg: #e3dac3;
+  --shadow-soft: rgba(80, 70, 40, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden; /* trava de segurança contra rolagem horizontal em telas estreitas */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Botão de alternância tema claro/escuro — fixo no canto superior direito,
+   visível em qualquer parte da página. */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 50;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  color: var(--gold-light);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.2s ease;
+}
+.theme-toggle:hover { border-color: var(--gold-dark); }
+.theme-toggle svg { width: 19px; height: 19px; display: block; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+
+h1, h2, h3, .brand {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse 900px 500px at 50% -10%, rgba(201,162,74,0.16) 0%, transparent 60%),
+    var(--bg);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 64px 20px 44px 20px;
+  text-align: center;
+}
+
+.hero__panel {
+  background: var(--panel-glass);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 22px;
+  padding: 34px 30px 30px 30px;
+  box-shadow: 0 20px 48px var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  max-width: 420px;
+}
+
+/* Wordmark fiel ao logo real do Beauty Place (enviado pelo cliente): fonte
+   sem serifa, "beauty" em peso leve e "place" em negrito, dentro de
+   colchetes finos — igual ao ícone/perfil do Instagram deles. */
+.brand-wordmark {
+  font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 38px;
+  font-weight: 300;
+  letter-spacing: 1px;
+  color: var(--ink);
+  margin: 0;
+}
+.brand-wordmark span { font-weight: 700; color: var(--ink); }
+
+.brand-wordmark__tag {
+  font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 1px;
+  color: var(--ink-soft);
+  margin: 0 0 14px 0;
+}
+
+.brand-tagline {
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 18px;
+}
+
+.venue-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 3px;
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+}
+
+.venue-card__inner {
+  border: 1px solid var(--gold-dark);
+  border-radius: 2px;
+  padding: 16px 22px;
+}
+
+.venue-card__line {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.venue-card__line--main {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 20px 10px 20px;
+}
+
+.section-title {
+  margin: 0 0 24px 0;
+  text-align: center;
+  color: var(--ink);
+}
+
+.section-title span {
+  position: relative;
+  display: inline-block;
+  font-size: 27px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  padding: 0 22px;
+}
+
+.section-title span::before,
+.section-title span::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 34px;
+  height: 1px;
+  background: var(--gold);
+}
+.section-title span::before { left: -34px; }
+.section-title span::after { right: -34px; }
+
+.section-title--sm span { font-size: 22px; letter-spacing: 3px; }
+
+@media (max-width: 420px) {
+  .section-title span { font-size: 19px; letter-spacing: 2.5px; padding: 0 12px; }
+  .section-title span::before, .section-title span::after { width: 16px; }
+  .section-title span::before { left: -16px; }
+  .section-title span::after { right: -16px; }
+  .section-title--sm span { font-size: 17px; letter-spacing: 1.5px; }
+}
+
+.booking-note {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 16px;
+}
+
+.section-sub {
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin: 0 0 28px 0;
+}
+
+/* Seletor de profissional — dois cartões lado a lado (Isac/Geuza), cada um
+   com nome + especialidade; escolher um filtra os procedimentos e os
+   horários mostrados mais abaixo, porque as agendas dos dois são
+   independentes. */
+.professional-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+@media (max-width: 480px) {
+  .professional-picker { grid-template-columns: 1fr; }
+}
+
+.professional-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-panel);
+  color: var(--ink);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.professional-pill:hover { border-color: var(--gold-dark); }
+
+.professional-pill.selected {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(201,162,74,0.16) 0%, rgba(201,162,74,0.05) 100%);
+  box-shadow: 0 6px 18px rgba(201,162,74,0.12);
+}
+
+.professional-pill__name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.professional-pill__role {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+/* Categorias (Cabelo / Barba / Estética / Bem-estar) — só decorativo e
+   informativo, pra mostrar de cara a variedade de serviços; não filtra nada
+   (quem filtra é o seletor de profissional abaixo, já que cada agenda é
+   independente). */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 40px;
+}
+@media (max-width: 560px) {
+  .category-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 10px 16px 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-panel);
+  text-align: center;
+}
+
+.category-card__icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold-light);
+}
+.category-card__icon svg { width: 22px; height: 22px; display: block; }
+
+.category-card__label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.procedures {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 32px;
+  margin-bottom: 36px;
+}
+
+@media (max-width: 560px) {
+  .procedures { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .hero__content { padding: 52px 20px 36px 20px; }
+  .hero__panel { padding: 24px 18px 20px 18px; border-radius: 16px; }
+  .brand-wordmark { font-size: 30px; }
+  .venue-card { max-width: 260px; }
+  .venue-card__inner { padding: 12px 16px; }
+  .venue-card__line--main { font-size: 15px; }
+  .venue-card__line { font-size: 11.5px; }
+}
+
+.procedure-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14.5px;
+  color: var(--ink);
+}
+
+.procedure-row__name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.procedure-row__dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+}
+
+.procedure-row__price {
+  color: var(--gold-light);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cta-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 340px;
+  margin: 0 auto 44px auto;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: #1a1304;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 14px 28px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 19px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(201, 162, 74, 0.2);
+}
+
+.cta-pill__icon {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.booking-box {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  scroll-margin-top: 20px;
+  margin-bottom: 46px;
+}
+
+.step-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-top: 22px;
+}
+.step-label:first-child { margin-top: 0; }
+
+select, input[type="date"], input[type="text"], input[type="tel"], input[type="email"], textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg-panel);
+}
+
+select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* Campo de data: em vez de tentar esconder só o ÍCONE nativo e por um
+   customizado em cima (o que dava errado de formas diferentes em cada
+   navegador — vazando, duplicando ou simplesmente sumindo, já que cada
+   motor desenha esse ícone de um jeito), escondemos o INPUT nativo inteiro
+   (fica 100% transparente, mas continua ali, ocupando a caixa toda e
+   clicável/tocável normalmente — é ele quem abre o calendário do celular).
+   Por cima, uma div só decorativa (.date-display) mostra o texto da data
+   formatado e o nosso ícone dourado, sempre do mesmo jeito, em qualquer
+   navegador. pointer-events:none nela garante que o toque "atravessa" e
+   chega no input de verdade por baixo. */
+.date-field { position: relative; }
+.date-field input[type="date"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+.date-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg-panel);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.date-display .date-icon {
+  display: flex;
+  color: var(--gold-light);
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.date-display .date-icon svg { width: 16px; height: 16px; display: block; }
+
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-btn {
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  border-radius: 20px;
+  padding: 9px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+
+.slot-btn:hover { border-color: var(--gold-light); }
+
+.slot-btn.selected {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1a1304;
+}
+
+.slots-empty {
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  font-style: italic;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
+
+.submit-btn {
+  width: 100%;
+  margin-top: 26px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: #1a1304;
+  border: none;
+  border-radius: 999px;
+  padding: 15px;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.submit-btn:disabled {
+  background: var(--btn-disabled-bg);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.submit-btn:not(:disabled):hover { background: var(--gold-light); }
+
+.msg {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  display: none;
+}
+.msg.show { display: block; }
+.msg.success { background: var(--ok-bg); color: var(--ok); border: 1px solid #1d3b2a; }
+.msg.error { background: var(--danger-bg); color: var(--danger); border: 1px solid #45211c; }
+
+footer {
+  text-align: center;
+  padding: 10px 20px 44px 20px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+
+.footer-contact {
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.footer-contact__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+}
+.footer-contact__row a { color: var(--ink); }
+.footer-contact__sep {
+  color: var(--line);
+}
+
+.footer-tagline {
+  font-family: 'Dancing Script', 'Cormorant Garamond', cursive;
+  font-size: 26px;
+  color: var(--gold-light);
+  margin-bottom: 18px;
+}
+
+.footer-badges {
+  letter-spacing: 2px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}

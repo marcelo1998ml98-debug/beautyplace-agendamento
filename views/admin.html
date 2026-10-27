@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Beauty Place — Marcações</title>
+<link rel="icon" type="image/png" href="/img/icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Jost', sans-serif; background: #0a0a0a; margin: 0; color: #f2ede0; }
+  header { background: #141414; border-bottom: 1px solid #2c2822; padding: 10px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  header .brand { display: flex; align-items: center; gap: 10px; }
+  header .brand-wordmark { font-family: 'Jost', sans-serif; font-weight: 300; letter-spacing: 1px; font-size: 16px; }
+  header .brand-wordmark span { font-weight: 700; }
+  header h1 { font-family: 'Cormorant Garamond', serif; color: #c9a24a; margin: 0; font-size: 22px; }
+  header .right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  header form button { background: none; border: 1px solid #2c2822; border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; color: #a39b89; }
+  .wa-status { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #a39b89; }
+  .wa-dot { width: 9px; height: 9px; border-radius: 50%; background: #555; flex-shrink: 0; }
+  .wa-dot.conectado, .wa-dot.ativo { background: #4caf6f; }
+  .wa-dot.aguardando_qr { background: #d9a53a; }
+  .wa-dot.conectando { background: #d9a53a; }
+  .wa-dot.desconectado, .wa-dot.erro { background: #d9775a; }
+  .wa-dot.desativado, .wa-dot.simulado { background: #555; }
+
+  .sound-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a1a1a;
+    border: 1px solid #2c2822;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    color: #a39b89;
+  }
+  .sound-toggle--on {
+    background: rgba(76,175,111,0.12);
+    border-color: #3a6b4a;
+    color: #7fd79a;
+    font-weight: 600;
+  }
+
+  @media (max-width: 520px) {
+    header { flex-direction: column; align-items: flex-start; padding: 12px 16px; }
+    header .right { width: 100%; justify-content: space-between; }
+  }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 24px 20px 60px 20px; }
+
+  .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+  .summary-card { background: #141414; border: 1px solid #2c2822; border-radius: 14px; padding: 16px 18px; text-align: left; }
+  .summary-card__label { font-size: 12.5px; color: #a39b89; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .summary-card__value { font-family: 'Cormorant Garamond', serif; font-size: 34px; color: #c9a24a; line-height: 1.2; margin-top: 2px; }
+  .summary-card--pendentes .summary-card__value { color: #d9a53a; }
+  @media (max-width: 640px) {
+    .summary-cards { grid-template-columns: 1fr; }
+  }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .btn-primary { background: linear-gradient(135deg, #e8c97a 0%, #a8812e 100%); color: #0a0a0a; border: none; border-radius: 999px; padding: 11px 22px; font-size: 13.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+  .search-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .search-row input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid #2c2822; border-radius: 8px; font-size: 14px; font-family: inherit; background: #141414; color: #f2ede0; }
+  .search-row input::placeholder { color: #6b6457; }
+
+  .filter-group { margin-bottom: 10px; }
+  .filter-group__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #6b6457; margin-bottom: 6px; }
+  .filters { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .filters button { border: 1px solid #2c2822; background: #141414; border-radius: 20px; padding: 7px 16px; font-size: 13px; cursor: pointer; color: #a39b89; }
+  .filters button.active { background: #c9a24a; color: #0a0a0a; border-color: #c9a24a; font-weight: 600; }
+
+  .table-wrap { overflow-x: auto; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); margin-top: 18px; }
+  table { width: 100%; border-collapse: collapse; background: #141414; min-width: 920px; }
+  th { background: #1a1a1a; color: #c9a24a; text-align: left; padding: 10px 12px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+  td { padding: 11px 12px; border-bottom: 1px solid #2c2822; font-size: 13.5px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  .prof-badge { display: inline-block; font-size: 11.5px; padding: 3px 9px; border-radius: 10px; background: #1a1a1a; border: 1px solid #2c2822; color: #e8c97a; white-space: nowrap; }
+  .note-line { font-size: 11.5px; color: #c9a24a; margin-top: 2px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .email-cell { display: inline-block; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+  .email-empty { color: #5a5248; }
+  .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  .status-pendente { background: rgba(217,165,58,0.15); color: #e8c97a; }
+  .status-confirmado { background: rgba(76,175,111,0.15); color: #7fd79a; }
+  .status-cancelado { background: rgba(217,119,90,0.15); color: #e58a73; }
+  .status-concluido { background: rgba(90,120,180,0.15); color: #8fb3e0; }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .actions button { border: none; border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .btn-confirmar { background: #3a7a50; color: #fff; }
+  .btn-cancelar { background: #a8432e; color: #fff; }
+  .btn-concluir { background: #35507a; color: #fff; }
+  .btn-remarcar { background: #a8812e; color: #0a0a0a; font-weight: 600; }
+  .empty { text-align: center; color: #a39b89; padding: 40px 0; font-size: 14px; }
+
+  .section { margin-top: 46px; }
+  .section h2 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #c9a24a; margin: 0 0 16px 0; }
+  .block-form { background: #141414; border: 1px solid #2c2822; border-radius: 10px; padding: 18px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: end; margin-bottom: 18px; }
+  .block-form label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #c9a24a; display: block; margin-bottom: 4px; }
+  .block-form input, .block-form select { width: 100%; padding: 9px 10px; border: 1px solid #2c2822; border-radius: 6px; font-size: 13.5px; font-family: inherit; background: #1a1a1a; color: #f2ede0; }
+  .block-form button { grid-column: span 1; background: #a8812e; color: #0a0a0a; font-weight: 600; border: none; border-radius: 6px; padding: 10px; font-size: 13px; cursor: pointer; }
+  @media (max-width: 880px) { .block-form { grid-template-columns: 1fr 1fr; } }
+  .block-row { background: #141414; border: 1px solid #2c2822; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13.5px; gap: 10px; flex-wrap: wrap; }
+  .block-row .remove-block { background: none; border: 1px solid #2c2822; color: #d9775a; border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #141414; border: 1px solid #2c2822; border-radius: 16px; padding: 26px 24px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+  .modal h3 { font-family: 'Cormorant Garamond', serif; color: #c9a24a; margin: 0 0 18px 0; font-size: 21px; }
+  .modal .step-label { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #c9a24a; font-weight: 600; margin: 16px 0 8px 0; }
+  .modal .step-label:first-of-type { margin-top: 0; }
+  .modal select, .modal input[type="date"], .modal input[type="text"], .modal input[type="tel"], .modal input[type="email"], .modal input[type="time"], .modal textarea {
+    width: 100%; padding: 11px 12px; border: 1px solid #2c2822; border-radius: 8px; font-size: 14px; font-family: inherit; background: #1a1a1a; color: #f2ede0;
+  }
+  .modal input::placeholder, .modal textarea::placeholder { color: #6b6457; }
+
+  /* Ícone de calendário customizado — o iOS Safari não mostra nenhum ícone
+     no input[type="date"] nativo, ficando só o texto. Funciona igual em
+     qualquer campo de data da página (block-date e modal-date). */
+  .date-field { position: relative; }
+  /* Sem padding extra — no iOS Safari o campo de data tem largura mínima
+     interna fixa e estoura a caixa se a gente reduzir o espaço disponível.
+     Centraliza o texto da data pra ficar equilibrado com o ícone. */
+  .date-field input[type="date"] { text-align: center; }
+  .date-field input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0; position: absolute; right: 0; top: 0; width: 42px; height: 100%; cursor: pointer;
+  }
+  .date-icon {
+    position: absolute; top: 50%; right: 14px; transform: translateY(-50%);
+    color: #c9a24a; pointer-events: none;
+  }
+  .date-icon svg { width: 15px; height: 15px; display: block; }
+  .modal .slots { display: flex; flex-wrap: wrap; gap: 7px; }
+  .modal .slot-btn { border: 1px solid #2c2822; background: #1a1a1a; color: #f2ede0; border-radius: 18px; padding: 7px 13px; font-size: 13px; cursor: pointer; }
+  .modal .slot-btn.selected { background: #c9a24a; border-color: #c9a24a; color: #0a0a0a; font-weight: 600; }
+  .modal .slots-empty { color: #a39b89; font-size: 13px; font-style: italic; }
+  .modal .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 420px) { .modal .field-row { grid-template-columns: 1fr; } }
+  .modal .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal .modal-actions button { flex: 1; border: none; border-radius: 999px; padding: 12px; font-size: 13.5px; cursor: pointer; font-weight: 600; }
+  .modal .btn-cancel-modal { background: #1a1a1a; border: 1px solid #2c2822 !important; color: #a39b89; }
+  .modal .btn-save-modal { background: linear-gradient(135deg, #e8c97a 0%, #a8812e 100%); color: #0a0a0a; }
+  .modal .btn-save-modal:disabled { background: #4a4336; color: #8a8372; cursor: not-allowed; }
+  .modal .modal-msg { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: none; }
+  .modal .modal-msg.show { display: block; }
+  .modal .modal-msg.error { background: rgba(217,119,90,0.15); color: #e58a73; }
+  .modal .modal-msg.success { background: rgba(76,175,111,0.15); color: #7fd79a; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-wordmark">[ beauty <span>place</span> ]</div>
+      <h1>· Marcações</h1>
+    </div>
+    <div class="right">
+      <div class="wa-status" id="wa-status"><span class="wa-dot" id="wa-dot"></span><span id="wa-label">Verificando WhatsApp...</span></div>
+      <div class="wa-status" id="email-status"><span class="wa-dot" id="email-dot"></span><span id="email-label">Verificando e-mail...</span></div>
+      <button type="button" class="sound-toggle" id="sound-toggle" title="Clique aqui toda vez que abrir o painel — ativa o bipe de som e a notificação do sistema, e já testa os dois na hora">🔔 Ativar avisos de notificação</button>
+      <form method="POST" action="/admin/logout"><button type="submit">Sair</button></form>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="summary-cards" id="summary-cards">
+      <div class="summary-card">
+        <div class="summary-card__label">Hoje</div>
+        <div class="summary-card__value" id="summary-hoje">—</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card__label">Amanhã</div>
+        <div class="summary-card__value" id="summary-amanha">—</div>
+      </div>
+      <div class="summary-card summary-card--pendentes">
+        <div class="summary-card__label">Pendentes</div>
+        <div class="summary-card__value" id="summary-pendentes">—</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-row" style="margin-bottom:0; flex:1;">
+        <input type="text" id="search-input" placeholder="Buscar por nome ou telemóvel...">
+      </div>
+      <button class="btn-primary" id="new-booking-btn">+ Nova marcação</button>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-group__label">Profissional</div>
+      <div class="filters" id="prof-filters">
+        <button data-prof="todos" class="active">Todos</button>
+        <!-- demais profissionais preenchidos via JS a partir de /api/professionals -->
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-group__label">Estado</div>
+      <div class="filters" id="filters">
+        <button data-filter="todos" class="active">Todos</button>
+        <button data-filter="pendente">Pendentes</button>
+        <button data-filter="confirmado">Confirmados</button>
+        <button data-filter="cancelado">Cancelados</button>
+        <button data-filter="concluido">Concluídos</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Profissional</th>
+            <th>Cliente</th>
+            <th>Telemóvel</th>
+            <th>E-mail</th>
+            <th>Procedimento</th>
+            <th>Estado</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="bookings-body"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty-msg" style="display:none;">Nenhuma marcação encontrada.</div>
+
+    <div class="section">
+      <h2>Bloqueios de agenda</h2>
+      <form class="block-form" id="block-form">
+        <div>
+          <label>Profissional</label>
+          <select id="block-professional">
+            <option value="">Todo o espaço</option>
+            <!-- preenchido via JS a partir de /api/professionals -->
+          </select>
+        </div>
+        <div>
+          <label>Data</label>
+          <div class="date-field">
+            <input type="date" id="block-date" required>
+            <span class="date-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="16" y1="2" x2="16" y2="6"></line></svg></span>
+          </div>
+        </div>
+        <div>
+          <label>Início (opcional)</label>
+          <input type="time" id="block-start">
+        </div>
+        <div>
+          <label>Fim (opcional)</label>
+          <input type="time" id="block-end">
+        </div>
+        <div>
+          <label>Motivo (opcional)</label>
+          <input type="text" id="block-reason" placeholder="Ex: folga">
+        </div>
+        <button type="submit">Bloquear</button>
+      </form>
+      <div id="blocks-list"></div>
+      <div class="empty" id="blocks-empty" style="display:none; padding: 16px 0;">Nenhum bloqueio futuro cadastrado.</div>
+    </div>
+  </div>
+
+  <!-- Modal: nova marcação / remarcação -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h3 id="modal-title">Nova marcação</h3>
+
+      <div id="modal-professional-wrap">
+        <div class="step-label">Profissional</div>
+        <select id="modal-professional"></select>
+      </div>
+
+      <div id="modal-service-wrap">
+        <div class="step-label">Procedimento</div>
+        <select id="modal-service"></select>
+      </div>
+
+      <div class="step-label">Data</div>
+      <div class="date-field">
+        <input type="date" id="modal-date">
+        <span class="date-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="16" y1="2" x2="16" y2="6"></line></svg></span>
+      </div>
+
+      <div class="step-label">Horário disponível</div>
+      <div class="slots" id="modal-slots"><span class="slots-empty">Selecione o profissional, o procedimento e a data acima.</span></div>
+
+      <div id="modal-client-wrap">
+        <div class="step-label">Dados do cliente</div>
+        <div class="field-row">
+          <input type="text" id="modal-name" placeholder="Nome completo">
+          <input type="tel" id="modal-phone" placeholder="Telemóvel / WhatsApp">
+        </div>
+        <div style="margin-top:10px;">
+          <input type="email" id="modal-email" placeholder="E-mail (opcional)">
+        </div>
+        <div style="margin-top:10px;">
+          <textarea id="modal-notes" placeholder="Observações (opcional)" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-msg" id="modal-msg"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel-modal" id="modal-cancel-btn">Cancelar</button>
+        <button type="button" class="btn-save-modal" id="modal-save-btn" disabled>Salvar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+let allBookings = [];
+let professionals = [];
+let currentFilter = 'todos';
+let currentProfFilter = 'todos';
+let currentSearch = '';
+let services = [];
+let modalMode = 'create'; // 'create' | 'reschedule'
+let modalBookingId = null;
+let modalSelectedTime = null;
+
+// Escapa texto vindo de fora (nome/telefone/observações preenchidos por
+// clientes no site público) antes de inserir no HTML do painel — evita que
+// alguém insira código malicioso num campo de texto e ele rode na tela de
+// quem abrir o painel administrativo (ataque conhecido como XSS).
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+function formatDateBR(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ---------- Profissionais (filtro + selects) ----------
+
+async function loadProfessionals() {
+  const res = await fetch('/api/professionals');
+  professionals = await res.json();
+
+  const profFiltersBox = document.getElementById('prof-filters');
+  profFiltersBox.innerHTML = '<button data-prof="todos" class="active">Todos</button>' +
+    professionals.map((p) => `<button data-prof="${Number(p.id)}">${escapeHtml(p.name)}</button>`).join('');
+  profFiltersBox.querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      profFiltersBox.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentProfFilter = btn.dataset.prof;
+      render();
+    });
+  });
+
+  const blockProfSelect = document.getElementById('block-professional');
+  blockProfSelect.innerHTML = '<option value="">Todo o espaço</option>' +
+    professionals.map((p) => `<option value="${Number(p.id)}">${escapeHtml(p.name)}</option>`).join('');
+
+  const modalProfSelect = document.getElementById('modal-professional');
+  modalProfSelect.innerHTML = '<option value="">Selecione um profissional</option>' +
+    professionals.map((p) => `<option value="${Number(p.id)}">${escapeHtml(p.name)} (${escapeHtml(p.role)})</option>`).join('');
+}
+
+function professionalName(id) {
+  const p = professionals.find((x) => Number(x.id) === Number(id));
+  return p ? p.name : '—';
+}
+
+// ---------- Som de notificação (marcação nova) ----------
+// Toca um "bip" duplo quando chega uma marcação nova, sem precisar ficar
+// checando o painel manualmente. Detectamos "nova" comparando o maior ID já
+// visto com o maior ID da lista atual — como o ID é sequencial (cresce a
+// cada marcação criada), um ID maior só aparece quando alguém agenda de
+// verdade pelo site; uma mudança de status (confirmar/cancelar) feita aqui
+// no painel não cria ID novo, então não dispara o som à toa.
+let knownMaxBookingId = null;
+let audioCtx = null;
+let soundArmed = false;
+const soundToggleBtn = document.getElementById('sound-toggle');
+
+// Navegadores só deixam tocar áudio depois de alguma interação real do
+// usuário com a página (clique, toque, tecla) — é uma trava de segurança
+// contra sites que tocam som sozinhos, sem o usuário pedir. Isso significa
+// que preparar o AudioContext escondido, sem nenhum retorno visual, é
+// arriscado: se por algum motivo o "destravamento" não aconteceu (ex: a
+// pessoa só ficou olhando a tela, sem clicar em nada ainda), o som falha
+// *silenciosamente* — sem erro, sem aviso, e ninguém percebe até perder uma
+// notificação de verdade. Por isso trocamos pra um botão visível
+// ("🔔 Ativar som de notificação"): clicando nele, o som já é destravado e
+// toca um bipe de teste na hora — então dá pra confirmar que funcionou, em
+// vez de descobrir só quando (não) tocar.
+function armNotificationSound(playTestBeep) {
+  if (!audioCtx) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) audioCtx = new AudioCtx();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  if (!soundArmed && soundToggleBtn) {
+    soundArmed = true;
+    soundToggleBtn.textContent = '🔔 Avisos ativados';
+    soundToggleBtn.classList.add('sound-toggle--on');
+  }
+  // Aproveita o mesmo clique pra também pedir permissão de notificação do
+  // sistema (a "caixinha" que aparece no canto da tela, mesmo com o
+  // navegador minimizado) — ela funciona como reforço do som, porque não
+  // depende do mesmo destravamento de áudio explicado acima.
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+  if (playTestBeep) {
+    playNewBookingSound();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Teste de notificação — Beauty Place', { body: 'Se está a ver isto, as notificações do sistema estão a funcionar.', icon: '/img/icon.png' });
+    }
+  }
+}
+if (soundToggleBtn) {
+  soundToggleBtn.addEventListener('click', () => armNotificationSound(true));
+}
+// IMPORTANTE: esse "destravamento" do som vale só pra essa aba aberta — ele
+// NÃO fica salvo. Se a página for recarregada (F5) ou reaberta, é preciso
+// clicar no botão de novo antes da próxima marcação chegar, senão o som
+// pode não tocar (mesmo que um clique no botão, isoladamente, sempre toque
+// o bipe de teste — a diferença é que o aviso automático, do polling, não
+// conta como um "clique" pro navegador).
+// Qualquer outro clique na página também destrava o som (sem bipe de teste),
+// como reforço — mas o botão acima é o jeito confiável e com confirmação.
+document.addEventListener('click', () => armNotificationSound(false));
+document.addEventListener('keydown', () => armNotificationSound(false));
+
+// Notificação do sistema (desktop) — aparece mesmo com o navegador
+// minimizado ou em outra aba, e não depende do "destravamento" de áudio
+// explicado acima (só da permissão de notificação, que o Chrome já lembra
+// por site). Funciona como reforço do som: se um falhar, o outro ainda
+// avisa.
+function showNewBookingNotification(booking) {
+  try {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    new Notification('Nova marcação — Beauty Place', {
+      body: `${booking.client_name} — ${formatDateBR(booking.booking_date)} às ${booking.booking_time}`,
+      icon: '/img/icon.png',
+    });
+  } catch (err) {
+    console.error('Não foi possível mostrar a notificação do sistema:', err.message);
+  }
+}
+
+function beep(freq, startTime) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.3, startTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.3);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(startTime);
+  osc.stop(startTime + 0.32);
+}
+
+function playNewBookingSound() {
+  try {
+    if (!audioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      audioCtx = new AudioCtx();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    beep(880, now);        // primeiro bip
+    beep(1046.5, now + 0.22); // segundo bip, um pouco mais agudo
+  } catch (err) {
+    console.error('Não foi possível tocar o som de notificação:', err.message);
+  }
+}
+
+// ---------- Conexão em tempo real (Server-Sent Events) ----------
+// O polling de 15s (logo abaixo) é bom reforço, mas sozinho não é
+// suficiente: com a aba do painel em segundo plano, o navegador atrasa
+// bastante esses timers (ver explicação completa no server.js, função
+// broadcastNewBooking). Por isso mantemos essa conexão aberta — o servidor
+// "empurra" o aviso assim que a marcação é criada, o que não sofre esse
+// mesmo atraso.
+function connectAdminEvents() {
+  const source = new EventSource('/api/admin/events');
+  source.addEventListener('new-booking', (ev) => {
+    let booking;
+    try {
+      booking = JSON.parse(ev.data);
+    } catch (err) {
+      return;
+    }
+    const id = Number(booking.id) || 0;
+    if (knownMaxBookingId === null || id > knownMaxBookingId) {
+      knownMaxBookingId = id;
+      playNewBookingSound();
+      showNewBookingNotification(booking);
+    }
+    loadBookings(); // atualiza a lista na hora, sem esperar o próximo polling
+  });
+  // EventSource já tenta reconectar sozinho quando a conexão cai (ex: o
+  // Render reiniciou o servidor) — não precisa de nada extra aqui.
+}
+
+// ---------- Lista de marcações ----------
+
+async function loadBookings() {
+  const res = await fetch('/api/admin/bookings');
+  allBookings = await res.json();
+
+  const maxId = allBookings.reduce((max, b) => Math.max(max, Number(b.id) || 0), 0);
+  if (knownMaxBookingId !== null && maxId > knownMaxBookingId) {
+    playNewBookingSound();
+    const newest = allBookings.find(b => Number(b.id) === maxId);
+    if (newest) showNewBookingNotification(newest);
+  }
+  knownMaxBookingId = maxId;
+
+  render();
+  updateSummaryCards();
+}
+
+// Cartões de resumo no topo do painel: confirmadas de hoje, confirmadas de
+// amanhã, e pendentes no total (qualquer data, já que toda pendente precisa
+// de alguma ação — somando os dois profissionais, não só as de hoje/amanhã).
+function updateSummaryCards() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const tomorrowStr = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  const hoje = allBookings.filter(b => b.booking_date === todayStr && b.status === 'confirmado').length;
+  const amanha = allBookings.filter(b => b.booking_date === tomorrowStr && b.status === 'confirmado').length;
+  const pendentes = allBookings.filter(b => b.status === 'pendente').length;
+
+  document.getElementById('summary-hoje').textContent = hoje;
+  document.getElementById('summary-amanha').textContent = amanha;
+  document.getElementById('summary-pendentes').textContent = pendentes;
+}
+
+function render() {
+  const body = document.getElementById('bookings-body');
+  const emptyMsg = document.getElementById('empty-msg');
+  // Na aba "Todos", esconde os procedimentos já concluídos E os cancelados
+  // por padrão — sem isso, a lista cresce pra sempre com agendamentos que já
+  // resolveram (concluídos) ou que nunca vão mais precisar de ação
+  // (cancelados), sem nenhum jeito de "limpar" a tela principal. Pra ver
+  // qualquer um dos dois, basta clicar na aba correspondente ali em cima
+  // ("Cancelados" ou "Concluídos").
+  let filtered = currentFilter === 'todos'
+    ? allBookings.filter(b => b.status !== 'concluido' && b.status !== 'cancelado')
+    : allBookings.filter(b => b.status === currentFilter);
+
+  if (currentProfFilter !== 'todos') {
+    filtered = filtered.filter(b => String(b.professional_id) === String(currentProfFilter));
+  }
+
+  if (currentSearch.trim()) {
+    const q = currentSearch.trim().toLowerCase();
+    filtered = filtered.filter(b =>
+      (b.client_name || '').toLowerCase().includes(q) ||
+      (b.client_phone || '').toLowerCase().includes(q)
+    );
+  }
+
+  if (filtered.length === 0) {
+    body.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  body.innerHTML = filtered.map(b => `
+    <tr>
+      <td>${formatDateBR(b.booking_date)}</td>
+      <td>${escapeHtml(b.booking_time)}</td>
+      <td><span class="prof-badge">${escapeHtml(b.professional_name || professionalName(b.professional_id))}</span></td>
+      <td>
+        ${escapeHtml(b.client_name)}
+        ${b.notes ? `<div class="note-line" title="${escapeHtml(b.notes)}">📝 ${escapeHtml(b.notes)}</div>` : ''}
+      </td>
+      <td>${escapeHtml(b.client_phone)}</td>
+      <td>${b.client_email ? `<span class="email-cell" title="${escapeHtml(b.client_email)}">${escapeHtml(b.client_email)}</span>` : '<span class="email-empty">—</span>'}</td>
+      <td>${escapeHtml(b.service_name)}</td>
+      <td><span class="status-badge status-${escapeHtml(b.status)}">${escapeHtml(b.status)}</span></td>
+      <td>
+        <div class="actions">
+          ${b.status !== 'confirmado' && b.status !== 'concluido' ? `<button class="btn-confirmar" data-id="${Number(b.id)}" data-status="confirmado">Confirmar</button>` : ''}
+          ${b.status !== 'cancelado' && b.status !== 'concluido' ? `<button class="btn-cancelar" data-id="${Number(b.id)}" data-status="cancelado">Cancelar</button>` : ''}
+          ${b.status === 'confirmado' ? `<button class="btn-concluir" data-id="${Number(b.id)}" data-status="concluido">Concluído</button>` : ''}
+          ${b.status !== 'cancelado' && b.status !== 'concluido' ? `<button class="btn-remarcar" data-id="${Number(b.id)}">Remarcar</button>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  body.querySelectorAll('button[data-status]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await fetch(`/api/admin/bookings/${btn.dataset.id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: btn.dataset.status }),
+      });
+      loadBookings();
+    });
+  });
+
+  body.querySelectorAll('.btn-remarcar').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const booking = allBookings.find(b => String(b.id) === btn.dataset.id);
+      if (booking) openModal('reschedule', booking);
+    });
+  });
+}
+
+document.getElementById('filters').addEventListener('click', (e) => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#filters button').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentFilter = e.target.dataset.filter;
+  render();
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => {
+  currentSearch = e.target.value;
+  render();
+});
+
+// ---------- Status WhatsApp / e-mail ----------
+
+const WA_LABELS = {
+  conectado: 'WhatsApp conectado',
+  aguardando_qr: 'Aguardando leitura do QR code',
+  conectando: 'Conectando ao WhatsApp...',
+  desconectado: 'WhatsApp desconectado',
+  erro: 'Erro na conexão do WhatsApp',
+  desativado: 'WhatsApp em modo simulado',
+};
+
+const EMAIL_LABELS = {
+  ativo: 'E-mail ativo',
+  simulado: 'E-mail em modo simulado',
+};
+
+async function loadWhatsAppStatus() {
+  try {
+    const res = await fetch('/api/admin/whatsapp-status');
+    const data = await res.json();
+    document.getElementById('wa-dot').className = `wa-dot ${data.status}`;
+    document.getElementById('wa-label').textContent = WA_LABELS[data.status] || data.status;
+  } catch (err) {}
+}
+
+async function loadEmailStatus() {
+  try {
+    const res = await fetch('/api/admin/email-status');
+    const data = await res.json();
+    document.getElementById('email-dot').className = `wa-dot ${data.status}`;
+    document.getElementById('email-label').textContent = EMAIL_LABELS[data.status] || data.status;
+  } catch (err) {}
+}
+
+// ---------- Bloqueios de agenda ----------
+
+async function loadBlocks() {
+  const res = await fetch('/api/admin/blocks');
+  const blocks = await res.json();
+  const list = document.getElementById('blocks-list');
+  const empty = document.getElementById('blocks-empty');
+
+  if (blocks.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = blocks.map(b => `
+    <div class="block-row">
+      <span>
+        <span class="prof-badge">${escapeHtml(b.professional_name || 'Todo o espaço')}</span>
+        &nbsp;·&nbsp;
+        <strong>${formatDateBR(b.block_date)}</strong>
+        ${b.start_time && b.end_time ? ` · ${escapeHtml(b.start_time)} às ${escapeHtml(b.end_time)}` : ' · dia inteiro'}
+        ${b.reason ? ` · ${escapeHtml(b.reason)}` : ''}
+      </span>
+      <button class="remove-block" data-id="${Number(b.id)}">Remover</button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.remove-block').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await fetch(`/api/admin/blocks/${btn.dataset.id}`, { method: 'DELETE' });
+      loadBlocks();
+    });
+  });
+}
+
+document.getElementById('block-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const professional_id = document.getElementById('block-professional').value || null;
+  const block_date = document.getElementById('block-date').value;
+  const start_time = document.getElementById('block-start').value;
+  const end_time = document.getElementById('block-end').value;
+  const reason = document.getElementById('block-reason').value.trim();
+
+  const res = await fetch('/api/admin/blocks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ professional_id, block_date, start_time, end_time, reason }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    alert(data.error || 'Não foi possível criar o bloqueio.');
+    return;
+  }
+  document.getElementById('block-form').reset();
+  loadBlocks();
+});
+
+// ---------- Modal: nova marcação / remarcação ----------
+
+async function loadServicesForModal(professionalId) {
+  const url = professionalId ? `/api/services?professional_id=${professionalId}` : '/api/services';
+  const res = await fetch(url);
+  services = await res.json();
+  const select = document.getElementById('modal-service');
+  select.innerHTML = '<option value="">Selecione um procedimento</option>' +
+    services.map(s => `<option value="${Number(s.id)}">${escapeHtml(s.name)} (${Number(s.duration_minutes)} min)</option>`).join('');
+}
+
+function openModal(mode, booking) {
+  modalMode = mode;
+  modalBookingId = booking ? booking.id : null;
+  modalSelectedTime = null;
+
+  document.getElementById('modal-msg').className = 'modal-msg';
+  document.getElementById('modal-slots').innerHTML = '<span class="slots-empty">Selecione o profissional, o procedimento e a data acima.</span>';
+
+  const today = new Date().toISOString().slice(0, 10);
+  const dateInput = document.getElementById('modal-date');
+  dateInput.min = today;
+
+  if (mode === 'create') {
+    document.getElementById('modal-title').textContent = 'Nova marcação';
+    document.getElementById('modal-professional-wrap').style.display = 'block';
+    document.getElementById('modal-service-wrap').style.display = 'block';
+    document.getElementById('modal-client-wrap').style.display = 'block';
+    document.getElementById('modal-professional').value = '';
+    document.getElementById('modal-service').innerHTML = '<option value="">Selecione um profissional primeiro</option>';
+    dateInput.value = today;
+    document.getElementById('modal-name').value = '';
+    document.getElementById('modal-phone').value = '';
+    document.getElementById('modal-email').value = '';
+    document.getElementById('modal-notes').value = '';
+  } else {
+    document.getElementById('modal-title').textContent = `Remarcar — ${booking.client_name}`;
+    document.getElementById('modal-professional-wrap').style.display = 'none';
+    document.getElementById('modal-service-wrap').style.display = 'none';
+    document.getElementById('modal-client-wrap').style.display = 'none';
+    dateInput.value = booking.booking_date;
+  }
+
+  updateModalSaveState();
+  document.getElementById('modal-overlay').classList.add('show');
+  if (mode === 'reschedule' && dateInput.value) loadModalSlotsForReschedule(booking);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+function updateModalSaveState() {
+  const saveBtn = document.getElementById('modal-save-btn');
+  if (modalMode === 'create') {
+    const ok = document.getElementById('modal-professional').value &&
+      document.getElementById('modal-service').value &&
+      document.getElementById('modal-date').value && modalSelectedTime &&
+      document.getElementById('modal-name').value.trim() &&
+      document.getElementById('modal-phone').value.trim();
+    saveBtn.disabled = !ok;
+  } else {
+    saveBtn.disabled = !(document.getElementById('modal-date').value && modalSelectedTime);
+  }
+}
+
+async function loadModalSlots() {
+  const serviceId = document.getElementById('modal-service').value;
+  const date = document.getElementById('modal-date').value;
+  const slotsBox = document.getElementById('modal-slots');
+  modalSelectedTime = null;
+  updateModalSaveState();
+
+  if (!serviceId || !date) {
+    slotsBox.innerHTML = '<span class="slots-empty">Selecione o profissional, o procedimento e a data acima.</span>';
+    return;
+  }
+
+  slotsBox.innerHTML = '<span class="slots-empty">Carregando horários...</span>';
+
+  let url = `/api/availability?date=${date}&service_id=${serviceId}`;
+  if (modalMode === 'reschedule' && modalBookingId) url += `&exclude_booking_id=${modalBookingId}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+  renderModalSlots(data.slots);
+}
+
+// Na remarcação não há select de procedimento visível (o procedimento não
+// muda) — usamos o service_id já salvo na marcação original.
+async function loadModalSlotsForReschedule(booking) {
+  const date = document.getElementById('modal-date').value;
+  const slotsBox = document.getElementById('modal-slots');
+  modalSelectedTime = null;
+  updateModalSaveState();
+
+  if (!date) {
+    slotsBox.innerHTML = '<span class="slots-empty">Selecione a data acima.</span>';
+    return;
+  }
+
+  slotsBox.innerHTML = '<span class="slots-empty">Carregando horários...</span>';
+  const url = `/api/availability?date=${date}&service_id=${booking.service_id}&exclude_booking_id=${booking.id}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  renderModalSlots(data.slots);
+}
+
+function renderModalSlots(slots) {
+  const slotsBox = document.getElementById('modal-slots');
+  if (!slots || slots.length === 0) {
+    slotsBox.innerHTML = '<span class="slots-empty">Nenhum horário disponível nessa data.</span>';
+    return;
+  }
+
+  slotsBox.innerHTML = '';
+  slots.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'slot-btn';
+    btn.textContent = slot;
+    btn.addEventListener('click', () => {
+      slotsBox.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      modalSelectedTime = slot;
+      updateModalSaveState();
+    });
+    slotsBox.appendChild(btn);
+  });
+}
+
+document.getElementById('modal-professional').addEventListener('change', async (e) => {
+  const professionalId = e.target.value;
+  document.getElementById('modal-service').innerHTML = '<option value="">Carregando procedimentos...</option>';
+  if (professionalId) await loadServicesForModal(professionalId);
+  loadModalSlots();
+  updateModalSaveState();
+});
+document.getElementById('modal-service').addEventListener('change', () => { loadModalSlots(); updateModalSaveState(); });
+document.getElementById('modal-date').addEventListener('change', () => {
+  if (modalMode === 'reschedule') {
+    const booking = allBookings.find(b => String(b.id) === String(modalBookingId));
+    if (booking) loadModalSlotsForReschedule(booking);
+  } else {
+    loadModalSlots();
+  }
+  updateModalSaveState();
+});
+['modal-name', 'modal-phone'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateModalSaveState);
+});
+
+document.getElementById('new-booking-btn').addEventListener('click', () => {
+  openModal('create', null);
+});
+
+document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modal-overlay') closeModal();
+});
+
+document.getElementById('modal-save-btn').addEventListener('click', async () => {
+  const msgBox = document.getElementById('modal-msg');
+  const saveBtn = document.getElementById('modal-save-btn');
+  msgBox.className = 'modal-msg';
+  saveBtn.disabled = true;
+
+  try {
+    let res, data;
+    if (modalMode === 'create') {
+      res = await fetch('/api/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: document.getElementById('modal-service').value,
+          client_name: document.getElementById('modal-name').value.trim(),
+          client_phone: document.getElementById('modal-phone').value.trim(),
+          client_email: document.getElementById('modal-email').value.trim(),
+          booking_date: document.getElementById('modal-date').value,
+          booking_time: modalSelectedTime,
+          notes: document.getElementById('modal-notes').value.trim(),
+        }),
+      });
+    } else {
+      res = await fetch(`/api/admin/bookings/${modalBookingId}/reschedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          booking_date: document.getElementById('modal-date').value,
+          booking_time: modalSelectedTime,
+        }),
+      });
+    }
+    data = await res.json();
+
+    if (!res.ok) {
+      msgBox.className = 'modal-msg error show';
+      msgBox.textContent = data.error || 'Não foi possível salvar.';
+      if (res.status === 409) {
+        if (modalMode === 'reschedule') {
+          const booking = allBookings.find(b => String(b.id) === String(modalBookingId));
+          if (booking) await loadModalSlotsForReschedule(booking);
+        } else {
+          await loadModalSlots();
+        }
+      }
+      saveBtn.disabled = false;
+      return;
+    }
+
+    closeModal();
+    loadBookings();
+  } catch (err) {
+    msgBox.className = 'modal-msg error show';
+    msgBox.textContent = 'Erro de conexão. Tente novamente.';
+    saveBtn.disabled = false;
+  }
+});
+
+loadProfessionals();
+loadBookings();
+loadWhatsAppStatus();
+loadEmailStatus();
+loadBlocks();
+connectAdminEvents();
+setInterval(loadBookings, 15000); // atualiza a cada 15s pra pegar novas marcações (reforço)
+setInterval(loadWhatsAppStatus, 15000);
+setInterval(loadEmailStatus, 15000);
+setInterval(loadBlocks, 15000); // pega bloqueios criados em outra aba/dispositivo
+</script>
+</body>
+</html>

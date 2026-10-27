@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cancelar marcação — Beauty Place</title>
+<link rel="icon" type="image/png" href="/img/icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Jost', sans-serif; background: #0a0a0a; color: #f2ede0;
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .box {
+    background: #141414; border: 1px solid #2c2822; border-radius: 18px;
+    padding: 36px 30px; width: 100%; max-width: 420px; text-align: center;
+    box-shadow: 0 14px 36px rgba(0,0,0,0.5);
+  }
+  .brand-wordmark { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 1px; margin: 0 0 2px 0; }
+  .brand-wordmark span { font-weight: 700; }
+  .brand-wordmark__tag { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 11px; letter-spacing: 1px; color: #a39b89; margin: 0 0 18px 0; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #c9a24a; margin: 0 0 18px 0; }
+  .details { background: #1a1a1a; border: 1px solid #2c2822; border-radius: 10px; padding: 16px; margin-bottom: 20px; font-size: 14px; text-align: left; line-height: 1.7; }
+  .details b { color: #c9a24a; }
+  p.msg { font-size: 14.5px; color: #a39b89; margin: 0 0 20px 0; }
+  button {
+    width: 100%; background: linear-gradient(135deg, #d9775a 0%, #a8432e 100%); color: #fff; border: none;
+    border-radius: 999px; padding: 14px; font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; font-weight: 600;
+  }
+  button:disabled { background: #4a4336; color: #8a8372; cursor: not-allowed; }
+  .result { margin-top: 18px; padding: 12px 14px; border-radius: 8px; font-size: 14px; display: none; }
+  .result.show { display: block; }
+  .result.success { background: rgba(76,175,111,0.12); color: #7fd79a; border: 1px solid #3a6b4a; }
+  .result.error { background: rgba(217,119,90,0.12); color: #e58a73; border: 1px solid #6b3a2e; }
+  .loading { color: #a39b89; font-size: 14px; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="brand-wordmark">[ beauty <span>place</span> ]</div>
+    <div class="brand-wordmark__tag">for gym</div>
+    <h1>Cancelar marcação</h1>
+    <div id="content">
+      <p class="loading">A carregar os dados da sua marcação...</p>
+    </div>
+  </div>
+
+<script>
+const token = location.pathname.split('/').pop();
+const content = document.getElementById('content');
+
+function formatDateBR(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+async function load() {
+  try {
+    const res = await fetch(`/api/bookings/cancel-info/${token}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      content.innerHTML = `<div class="result error show">${escapeHtml(data.error || 'Não foi possível encontrar essa marcação.')}</div>`;
+      return;
+    }
+
+    const b = data.booking;
+
+    if (b.status === 'cancelado') {
+      content.innerHTML = `
+        <div class="details">
+          <b>${escapeHtml(b.service_name)}</b>${b.professional_name ? ` — ${escapeHtml(b.professional_name)}` : ''}<br>
+          ${formatDateBR(b.booking_date)} às ${escapeHtml(b.booking_time)}
+        </div>
+        <div class="result error show">Esta marcação já está cancelada.</div>
+      `;
+      return;
+    }
+
+    if (b.status === 'concluido') {
+      content.innerHTML = `
+        <div class="details">
+          <b>${escapeHtml(b.service_name)}</b>${b.professional_name ? ` — ${escapeHtml(b.professional_name)}` : ''}<br>
+          ${formatDateBR(b.booking_date)} às ${escapeHtml(b.booking_time)}
+        </div>
+        <div class="result error show">Esta marcação já foi concluída e não pode mais ser cancelada por aqui.</div>
+      `;
+      return;
+    }
+
+    content.innerHTML = `
+      <div class="details">
+        <b>${escapeHtml(b.service_name)}</b>${b.professional_name ? ` — ${escapeHtml(b.professional_name)}` : ''}<br>
+        ${formatDateBR(b.booking_date)} às ${escapeHtml(b.booking_time)}<br>
+        ${escapeHtml(b.client_name)}
+      </div>
+      <p class="msg">Tem a certeza que deseja cancelar esta marcação?</p>
+      <button id="cancel-btn">Cancelar marcação</button>
+      <div class="result" id="result-box"></div>
+    `;
+
+    document.getElementById('cancel-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('cancel-btn');
+      const resultBox = document.getElementById('result-box');
+      btn.disabled = true;
+      btn.textContent = 'A cancelar...';
+
+      try {
+        const res = await fetch(`/api/bookings/cancel/${token}`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+          resultBox.className = 'result error show';
+          resultBox.textContent = data.error || 'Não foi possível cancelar. Tente novamente.';
+          btn.disabled = false;
+          btn.textContent = 'Cancelar marcação';
+          return;
+        }
+        resultBox.className = 'result success show';
+        resultBox.textContent = 'Marcação cancelada com sucesso.';
+        btn.style.display = 'none';
+      } catch (err) {
+        resultBox.className = 'result error show';
+        resultBox.textContent = 'Erro de ligação. Tente novamente.';
+        btn.disabled = false;
+        btn.textContent = 'Cancelar marcação';
+      }
+    });
+  } catch (err) {
+    content.innerHTML = '<div class="result error show">Erro de ligação. Tente novamente.</div>';
+  }
+}
+
+load();
+</script>
+</body>
+</html>

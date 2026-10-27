@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: beautyplace-agendamento
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run seed
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.9.0
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: WHATSAPP_ENABLED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        sync: false
+      - key: BUSINESS_NOTIFICATION_EMAIL
+        sync: false
+      - key: BUSINESS_ADDRESS
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        value: "false"
+    healthCheckPath: /
