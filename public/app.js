@@ -77,6 +77,7 @@ async function loadProfessionals() {
 
   professionalPicker.innerHTML = professionals.map((p) => `
     <button type="button" class="professional-pill" data-id="${p.id}">
+      <span class="professional-pill__avatar">${p.name.charAt(0)}</span>
       <span class="professional-pill__name">${p.name}</span>
       <span class="professional-pill__role">${p.role}</span>
     </button>
