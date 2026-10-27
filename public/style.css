@@ -1,22 +1,32 @@
 :root {
-  --gold-light: #e8c97a;
-  --gold: #c9a24a;
-  --gold-dark: #a8812e;
+  /* Paleta "couro & latão" — barbearia vintage clássica, em vez do
+     dourado/preto mais clean da primeira versão. */
+  --gold-light: #e0b668;
+  --gold: #b8923f;
+  --gold-dark: #8f6f2e;
   --bronze: #8a6a2b;
   --bronze-dark: #6e5221;
-  --bg: #0a0a0a;
-  --bg-panel: #141414;
-  --bg-card: #1a1a1a;
-  --ink: #f2ede0;
-  --ink-soft: #a39b89;
-  --line: #2c2822;
+  /* Vermelho-barbearia envelhecido — segunda cor de destaque, usada na
+     faixa do topo, anéis alternados dos emblemas e chips de função. */
+  --oxblood: #7a2e22;
+  --oxblood-dark: #5a211a;
+  --oxblood-light: #c97a5c;
+  /* Fundo escuro de verdade (preto quente, não marrom) — a versão "meio
+     marrom" ficou estranha; o couro/madeira agora entra só em detalhes
+     (linhas, textura sutil, foto de fundo) em vez do fundo inteiro. */
+  --bg: #0d0b09;
+  --bg-panel: #161310;
+  --bg-card: #1c1812;
+  --ink: #ede1c8;
+  --ink-soft: #ab9c83;
+  --line: #332920;
   --danger: #e2584a;
   --danger-bg: #2a1512;
-  --ok: #4fae7a;
-  --ok-bg: #11241a;
-  --panel-glass: rgba(20, 20, 20, 0.6);
-  --btn-disabled-bg: #3a3528;
-  --shadow-soft: rgba(0, 0, 0, 0.4);
+  --ok: #6fae6f;
+  --ok-bg: #16241a;
+  --panel-glass: rgba(13, 11, 9, 0.42);
+  --btn-disabled-bg: #2a2015;
+  --shadow-soft: rgba(0, 0, 0, 0.5);
 }
 
 /* Tema claro — alternado pelo botão sol/lua (ver app.js), guardado no
@@ -24,19 +34,21 @@
    iguais nos dois temas; só o fundo/texto/contornos mudam de dark pra
    light. */
 :root[data-theme="light"] {
-  --bg: #f8f4ea;
-  --bg-panel: #efe8d8;
-  --bg-card: #ffffff;
-  --ink: #2b2518;
-  --ink-soft: #6c6353;
-  --line: #ded3b8;
+  /* Tema claro vintage — papel envelhecido em vez de branco/creme neutro. */
+  --bg: #f2e4c8;
+  --bg-panel: #e9d8b4;
+  --bg-card: #fbf3e2;
+  --ink: #2e2015;
+  --ink-soft: #6b5a42;
+  --line: #d8c196;
   --danger: #c23f30;
   --danger-bg: #fbe8e4;
-  --ok: #2f7d52;
+  --ok: #3d7d3d;
   --ok-bg: #e4f3ea;
-  --panel-glass: rgba(255, 255, 255, 0.72);
-  --btn-disabled-bg: #e3dac3;
-  --shadow-soft: rgba(80, 70, 40, 0.18);
+  --panel-glass: rgba(251, 243, 226, 0.5);
+  --btn-disabled-bg: #e3d2a8;
+  --shadow-soft: rgba(60, 40, 20, 0.2);
+  --oxblood-light: #7a2a22;
 }
 
 * { box-sizing: border-box; }
@@ -44,10 +56,16 @@
 body {
   margin: 0;
   font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif;
-  background: var(--bg);
   color: var(--ink);
   overflow-x: hidden; /* trava de segurança contra rolagem horizontal em telas estreitas */
   transition: background-color 0.2s ease, color 0.2s ease;
+  /* Textura bem sutil (veios horizontais, tipo madeira) + um leve brilho
+     quente no centro — dá sensação de espaço físico (madeira/couro) em vez
+     de fundo chapado, sem chamar atenção. */
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 4px),
+    radial-gradient(ellipse 1200px 800px at 50% 0%, rgba(184,146,63,0.07), transparent 60%),
+    var(--bg);
 }
 
 /* Botão de alternância tema claro/escuro — fixo no canto superior direito,
@@ -75,8 +93,13 @@ body {
 :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
 :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 
+/* Abril Fatface — serifa cheia estilo cartaz/letreiro antigo de barbearia
+   (anos 1920-50). Usada nos títulos de seção e em textos de "voz" do site;
+   o wordmark principal ([ beauty place ]) continua em Jost, fiel ao logo
+   real do cliente — ver comentário mais abaixo. */
 h1, h2, h3, .brand {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Abril Fatface', Georgia, serif;
+  letter-spacing: 0px;
 }
 
 .hero {
@@ -85,7 +108,28 @@ h1, h2, h3, .brand {
   border-bottom: 1px solid var(--line);
   background:
     radial-gradient(ellipse 900px 500px at 50% -10%, rgba(201,162,74,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 420px at 85% 105%, rgba(156,59,50,0.10) 0%, transparent 60%),
     var(--bg);
+}
+
+/* Imagem gerada por IA (barbearia + salão, representando o Isac e a Geuza)
+   bem apagada atrás do cartão da logo, nos dois temas — dá atmosfera sem
+   competir com o texto. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/img/hero-photo.jpg');
+  background-size: cover;
+  background-position: 50% 38%;
+  opacity: 0.26;
+  filter: grayscale(0.15);
+}
+
+:root[data-theme="light"] .hero::before {
+  opacity: 0.22;
+  filter: grayscale(0.25) contrast(0.95);
 }
 
 .hero__content {
@@ -102,9 +146,9 @@ h1, h2, h3, .brand {
 .hero__panel {
   background: var(--panel-glass);
   border: 1px solid var(--line);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 22px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border-radius: 14px;
   padding: 34px 30px 30px 30px;
   box-shadow: 0 20px 48px var(--shadow-soft);
   display: flex;
@@ -166,7 +210,7 @@ h1, h2, h3, .brand {
 }
 
 .venue-card__line--main {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Abril Fatface', Georgia, serif;
   font-size: 18px;
   color: var(--ink);
   margin-bottom: 2px;
@@ -187,8 +231,8 @@ h1, h2, h3, .brand {
 .section-title span {
   position: relative;
   display: inline-block;
-  font-size: 27px;
-  letter-spacing: 5px;
+  font-size: 24px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   padding: 0 22px;
 }
@@ -199,20 +243,20 @@ h1, h2, h3, .brand {
   position: absolute;
   top: 50%;
   width: 34px;
-  height: 1px;
+  height: 2px;
   background: var(--gold);
 }
 .section-title span::before { left: -34px; }
 .section-title span::after { right: -34px; }
 
-.section-title--sm span { font-size: 22px; letter-spacing: 3px; }
+.section-title--sm span { font-size: 19px; letter-spacing: 1px; }
 
 @media (max-width: 420px) {
-  .section-title span { font-size: 19px; letter-spacing: 2.5px; padding: 0 12px; }
+  .section-title span { font-size: 18px; letter-spacing: 1px; padding: 0 12px; }
   .section-title span::before, .section-title span::after { width: 16px; }
   .section-title span::before { left: -16px; }
   .section-title span::after { right: -16px; }
-  .section-title--sm span { font-size: 17px; letter-spacing: 1.5px; }
+  .section-title--sm span { font-size: 15px; letter-spacing: 0.5px; }
 }
 
 .booking-note {
@@ -251,10 +295,10 @@ h1, h2, h3, .brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 16px 14px;
+  gap: 6px;
+  padding: 18px 14px 16px 14px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--bg-panel);
   color: var(--ink);
   cursor: pointer;
@@ -270,17 +314,49 @@ h1, h2, h3, .brand {
   box-shadow: 0 6px 18px rgba(201,162,74,0.12);
 }
 
-.professional-pill__name {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+/* Medalhão com a inicial do nome — como um emblema de barbearia. Alterna
+   dourado/vermelho entre o 1º e o 2º profissional, pra dar variedade visual
+   sem depender de foto real. */
+.professional-pill__avatar {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--gold-dark);
+  color: var(--gold-light);
+  font-family: 'Abril Fatface', Georgia, serif;
   font-size: 20px;
-  font-weight: 600;
+  /* anel duplo + sombra interna leve, pra lembrar uma medalha de latão
+     cravada no couro */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 0 3px var(--bg-panel), 0 0 0 4px var(--line);
+  margin-bottom: 2px;
+}
+.professional-pill:nth-child(even) .professional-pill__avatar {
+  border-color: var(--oxblood);
+  color: var(--oxblood-light);
+}
+
+.professional-pill__name {
+  font-family: 'Abril Fatface', Georgia, serif;
+  font-size: 21px;
+  font-weight: 400;
 }
 
 .professional-pill__role {
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--gold-light);
+  background: rgba(201,162,74,0.12);
+  padding: 3px 11px;
+  border-radius: 20px;
+  margin-top: 2px;
+}
+.professional-pill:nth-child(even) .professional-pill__role {
+  color: var(--oxblood-light);
+  background: rgba(156,59,50,0.14);
 }
 
 /* Categorias (Cabelo / Barba / Estética / Bem-estar) — só decorativo e
@@ -301,25 +377,33 @@ h1, h2, h3, .brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 20px 10px 16px 10px;
+  gap: 12px;
+  padding: 22px 10px 16px 10px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 10px;
   background: var(--bg-panel);
   text-align: center;
 }
 
+/* Emblema circular com anel duplo (estilo moeda/medalha de barbearia),
+   alternando dourado e vermelho entre os 4 cartões. */
 .category-card__icon {
-  width: 42px;
-  height: 42px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid var(--gold-dark);
+  border: 2px solid var(--gold-dark);
   color: var(--gold-light);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 0 3px var(--bg-panel), 0 0 0 4px var(--line);
 }
 .category-card__icon svg { width: 22px; height: 22px; display: block; }
+
+.category-card:nth-child(even) .category-card__icon {
+  border-color: var(--oxblood);
+  color: var(--oxblood-light);
+}
 
 .category-card__label {
   font-size: 11px;
@@ -369,9 +453,10 @@ h1, h2, h3, .brand {
 
 .procedure-row__dot {
   flex-shrink: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  transform: rotate(45deg);
   border: 1.5px solid var(--gold);
 }
 
@@ -391,11 +476,11 @@ h1, h2, h3, .brand {
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
   color: #1a1304;
   text-decoration: none;
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 14px 28px;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 19px;
-  font-weight: 600;
+  font-family: 'Abril Fatface', Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
   box-shadow: 0 8px 20px rgba(201, 162, 74, 0.2);
 }
 
@@ -412,7 +497,7 @@ h1, h2, h3, .brand {
 .booking-box {
   background: var(--bg-card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 28px 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   scroll-margin-top: 20px;
@@ -503,7 +588,7 @@ select:focus, input:focus, textarea:focus {
 .slot-btn {
   border: 1px solid var(--line);
   background: var(--bg-panel);
-  border-radius: 20px;
+  border-radius: 7px;
   padding: 9px 16px;
   font-size: 14px;
   cursor: pointer;
@@ -538,13 +623,13 @@ select:focus, input:focus, textarea:focus {
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
   color: #1a1304;
   border: none;
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 15px;
-  font-size: 15px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-family: 'Abril Fatface', Georgia, serif;
+  font-size: 16px;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .submit-btn:disabled {
